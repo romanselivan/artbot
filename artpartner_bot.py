@@ -63,7 +63,7 @@ def query_openrouter(chat_id, user_message, retries=3):
                 return result["choices"][0]["message"]["content"].strip()
             else:
                 logging.error("OpenRouter response doesn't contain 'choices' or it's empty.")
-                return "Sorry, something went wrong. Try again later."
+                return "Let me think... 🤔"
 
         except requests.exceptions.RequestException as e:
             logging.error(f"Error with OpenRouter request: {e}")
@@ -71,7 +71,7 @@ def query_openrouter(chat_id, user_message, retries=3):
                 logging.info(f"Retrying in 3 seconds (attempt {attempt + 1})")
                 time.sleep(3)  # Wait for 3 seconds before retrying
             else:
-                return "Sorry, something went wrong. Try again later."
+                return "Let me think... 🤔"
 
 # Message handler for the bot
 @bot.message_handler(commands=['start'])
@@ -100,8 +100,8 @@ def handle_message(message):
         # Special handling for "Who are you?" or similar questions
         if "who are you" in user_input or "what are you" in user_input:
             response = (
-                "I'm an expert in art, trained by Vladislav Sludsky and Roman Selivan. 🎨 "
-                "Ask me anything about classical or contemporary art!"
+                "I'm an expert in art, trained by Vladislav Sludsky and Roman Selivan."
+                "Ask me anything about art!"
             )
         else:
             # Send typing action
@@ -120,7 +120,7 @@ def handle_message(message):
         bot.reply_to(message, response)
     except Exception as e:
         logging.error(f"Error while processing message: {e}")
-        bot.reply_to(message, "Sorry, something went wrong. Try again later.")
+        bot.reply_to(message, "Let me think... 🤔")
 
 # Flask server to keep Replit alive
 app = Flask(__name__)
