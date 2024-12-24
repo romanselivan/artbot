@@ -100,7 +100,7 @@ def handle_message(message):
         # Special handling for "Who are you?" or similar questions
         if "who are you" in user_input or "what are you" in user_input:
             response = (
-                "I'm an expert in art, trained by Vladislav Sludsky and Roman Selivan."
+                "I'm an expert in art, trained by Vladislav Sludsky and Roman Selivan. "
                 "Ask me anything about art!"
             )
         else:
