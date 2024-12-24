@@ -4,6 +4,7 @@ import telebot
 import logging
 from flask import Flask, request
 from dotenv import load_dotenv
+import time  # Добавлен импорт time для использования time.sleep
 
 # Загрузить переменные из .env файла
 load_dotenv()
@@ -137,7 +138,7 @@ def set_webhook():
     requests.get(f"https://api.telegram.org/bot{TELEGRAM_API_TOKEN}/deleteWebhook")
 
     # Установить новый вебхук
-    webhook_url = f"https://your-app-url.com/{TELEGRAM_API_TOKEN}"
+    webhook_url = f"https://artbot-73cv.onrender.com/{TELEGRAM_API_TOKEN}"  # Убедитесь, что URL правильный
     response = requests.get(f"https://api.telegram.org/bot{TELEGRAM_API_TOKEN}/setWebhook?url={webhook_url}")
     if response.status_code == 200:
         logging.info("Webhook set successfully")
@@ -147,4 +148,4 @@ def set_webhook():
 # Run the Flask app
 if __name__ == "__main__":
     set_webhook()  # Set the webhook when the bot starts
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))  # Используйте порт 10000 для Render
