@@ -137,6 +137,23 @@ def keep_alive():
     thread.daemon = True
     thread.start()
 
+def check_bot_health():
+    while True:
+        try:
+            url = f"https://artbot-73cv.onrender.com/7747815798:AAHxM0X-D0BCM1aY6IN-cDqJOK1yNRhbhRI"
+            response = requests.get(url, timeout=10)
+            if response.status_code != 200:
+                logging.error(f"Bot is down! Restarting...")
+                set_webhook()  # Сбросить webhook
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Health check failed: {e}")
+        time.sleep(300)  # Проверять каждые 5 минут
+
+# Запустите поток для проверки здоровья
+health_check_thread = threading.Thread(target=check_bot_health)
+health_check_thread.daemon = True
+health_check_thread.start()
+
 # Start the bot and web server
 if __name__ == "__main__":
     keep_alive()
