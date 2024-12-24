@@ -133,6 +133,10 @@ def webhook():
     return "!", 200
 
 def set_webhook():
+    # Удалить старый вебхук перед установкой нового
+    requests.get(f"https://api.telegram.org/bot{TELEGRAM_API_TOKEN}/deleteWebhook")
+
+    # Установить новый вебхук
     webhook_url = f"https://your-app-url.com/{TELEGRAM_API_TOKEN}"
     response = requests.get(f"https://api.telegram.org/bot{TELEGRAM_API_TOKEN}/setWebhook?url={webhook_url}")
     if response.status_code == 200:
