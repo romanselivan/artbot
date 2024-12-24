@@ -2,9 +2,7 @@ import os
 import requests
 import telebot
 import logging
-import time
-from flask import Flask
-import threading
+from flask import Flask, request
 from dotenv import load_dotenv
 
 # Загрузить переменные из .env файла
@@ -12,6 +10,7 @@ load_dotenv()
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 # Initialize Telegram bot with API token
 TELEGRAM_API_TOKEN = os.getenv("TELEGRAM_API_TOKEN")
@@ -122,44 +121,26 @@ def handle_message(message):
         logging.error(f"Error while processing message: {e}")
         bot.reply_to(message, "Let me think... 🤔")
 
-# Flask server to keep Replit alive
+# Flask server to keep the bot alive
 app = Flask(__name__)
 
-@app.route('/')
-def home():
-    return "Bot is running and connected to UptimeRobot!"
+# Define route for the webhook endpoint
+@app.route('/' + TELEGRAM_API_TOKEN, methods=['POST'])
+def webhook():
+    json_str = request.get_data().decode('UTF-8')
+    update = telebot.types.Update.de_json(json_str)
+    bot.process_new_updates([update])
+    return "!", 200
 
-def run():
-    app.run(host='0.0.0.0', port=8080)
+def set_webhook():
+    webhook_url = f"https://your-app-url.com/{TELEGRAM_API_TOKEN}"
+    response = requests.get(f"https://api.telegram.org/bot{TELEGRAM_API_TOKEN}/setWebhook?url={webhook_url}")
+    if response.status_code == 200:
+        logging.info("Webhook set successfully")
+    else:
+        logging.error(f"Error setting webhook: {response.text}")
 
-def keep_alive():
-    thread = threading.Thread(target=run)
-    thread.daemon = True
-    thread.start()
-
-def check_bot_health():
-    while True:
-        try:
-            url = f"https://artbot-73cv.onrender.com/7747815798:AAHxM0X-D0BCM1aY6IN-cDqJOK1yNRhbhRI"
-            response = requests.get(url, timeout=10)
-            if response.status_code != 200:
-                logging.error(f"Bot is down! Restarting...")
-                set_webhook()  # Сбросить webhook
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Health check failed: {e}")
-        time.sleep(300)  # Проверять каждые 5 минут
-
-# Запустите поток для проверки здоровья
-health_check_thread = threading.Thread(target=check_bot_health)
-health_check_thread.daemon = True
-health_check_thread.start()
-
-# Start the bot and web server
+# Run the Flask app
 if __name__ == "__main__":
-    keep_alive()
-    while True:
-        try:
-            bot.polling(timeout=60, long_polling_timeout=60)
-        except Exception as e:
-            logging.error(f"Bot polling failed: {e}")
-            time.sleep(15)
+    set_webhook()  # Set the webhook when the bot starts
+    app.run(host='0.0.0.0', port=8080)
